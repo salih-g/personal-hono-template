@@ -30,19 +30,19 @@ The authentication system is already configured on the backend. You just need to
 
 ## Backend Endpoints
 
-The following endpoints are automatically available at `/api/v1/auth`:
+The following endpoints are automatically available at `/api/auth`:
 
 ### Authentication Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/v1/auth/sign-in/google` | Initiate Google OAuth flow |
-| `GET` | `/api/v1/auth/callback/google` | OAuth callback (handled automatically) |
-| `POST` | `/api/v1/auth/sign-up/email` | Email/password registration |
-| `POST` | `/api/v1/auth/sign-in/email` | Email/password login |
-| `POST` | `/api/v1/auth/sign-out` | Sign out and clear session |
-| `GET` | `/api/v1/auth/session` | Get current session |
-| `POST` | `/api/v1/auth/verify-email` | Verify email address |
+| `GET` | `/api/auth/sign-in/google` | Initiate Google OAuth flow |
+| `GET` | `/api/auth/callback/google` | OAuth callback (handled automatically) |
+| `POST` | `/api/auth/sign-up/email` | Email/password registration |
+| `POST` | `/api/auth/sign-in/email` | Email/password login |
+| `POST` | `/api/auth/sign-out` | Sign out and clear session |
+| `GET` | `/api/auth/session` | Get current session |
+| `POST` | `/api/auth/verify-email` | Verify email address |
 
 ### Environment Variables Required
 
@@ -441,7 +441,7 @@ export function GoogleLoginButton() {
     setLoading(true);
     try {
       const result = await WebBrowser.openAuthSessionAsync(
-        `https://your-api.com/api/v1/auth/sign-in/google`,
+        `https://your-api.com/api/auth/sign-in/google`,
         "myapp://callback" // Your app's deep link
       );
 
@@ -492,7 +492,7 @@ export function GoogleLoginButton() {
     try {
       if (await InAppBrowser.isAvailable()) {
         const result = await InAppBrowser.openAuth(
-          `https://your-api.com/api/v1/auth/sign-in/google`,
+          `https://your-api.com/api/auth/sign-in/google`,
           "myapp://callback",
           {
             ephemeralWebSession: false,
@@ -644,14 +644,14 @@ export function Profile() {
 
 1. **User clicks "Sign in with Google"**
    - Frontend calls `signIn.social({ provider: "google" })`
-   - Opens browser/in-app browser to `/api/v1/auth/sign-in/google`
+   - Opens browser/in-app browser to `/api/auth/sign-in/google`
 
 2. **Backend redirects to Google**
    - Better-auth redirects user to Google OAuth consent screen
    - User sees "Allow [Your App] to access your Google account?"
 
 3. **User grants permission**
-   - Google redirects back to your backend at `/api/v1/auth/callback/google`
+   - Google redirects back to your backend at `/api/auth/callback/google`
    - Sends authorization code to your backend
 
 4. **Backend processes OAuth callback**

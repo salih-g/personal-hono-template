@@ -161,22 +161,22 @@ pnpm docker:down
 - `GET /health` - Health check with database status
 
 ### Authentication
-- `POST /api/v1/auth/sign-up/email` - Email/password signup
-- `POST /api/v1/auth/sign-in/email` - Email/password signin
-- `POST /api/v1/auth/sign-out` - Sign out
-- `GET /api/v1/auth/session` - Get current session
-- `GET /api/v1/auth/google` - Google OAuth
+- `POST /api/auth/sign-up/email` - Email/password signup
+- `POST /api/auth/sign-in/email` - Email/password signin
+- `POST /api/auth/sign-out` - Sign out
+- `GET /api/auth/session` - Get current session
+- `GET /api/auth/google` - Google OAuth
 
 ### Users (Protected)
-- `GET /api/v1/users/me` - Get current user
-- `PATCH /api/v1/users/me` - Update current user
-- `DELETE /api/v1/users/me` - Delete current user
-- `GET /api/v1/users/:id` - Get user by ID
+- `GET /api/users/me` - Get current user
+- `PATCH /api/users/me` - Update current user
+- `DELETE /api/users/me` - Delete current user
+- `GET /api/users/:id` - Get user by ID
 
 ### Admin (Admin Only)
-- `GET /api/v1/admin/users` - Get all users
-- `PATCH /api/v1/admin/users/:userId/role` - Update user role
-- `DELETE /api/v1/admin/users/:userId` - Delete user
+- `GET /api/admin/users` - Get all users
+- `PATCH /api/admin/users/:userId/role` - Update user role
+- `DELETE /api/admin/users/:userId` - Delete user
 
 ## Database
 

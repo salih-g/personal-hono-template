@@ -37,9 +37,9 @@ app.use('*', async (c, next) => {
 });
 
 app.route('/health', healthRoutes);
-app.route('/api/v1/auth', authRoutes);
-app.route('/api/v1/users', usersRoutes);
-app.route('/api/v1/admin', adminRoutes);
+app.route('/api/auth', authRoutes);
+app.route('/api/users', usersRoutes);
+app.route('/api/admin', adminRoutes);
 
 app.get('/', (c) => {
   return c.json({
