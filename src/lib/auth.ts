@@ -34,6 +34,11 @@ export const auth = betterAuth({
     // Development mode: Expo Go patterns (official 2025 recommendation)
     ...(env.NODE_ENV === 'development'
       ? [
+          // EXACT URL from error log (wildcard doesn't work for paths)
+          'exp://192.168.68.52:8081/--/home',
+          'exp://192.168.68.52:8081',
+
+          // Broader wildcard patterns as fallback
           'exp://*/*',
           'exp://10.0.0.*:*/*',
           'exp://192.168.*.*:*/*',
