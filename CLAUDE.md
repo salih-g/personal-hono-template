@@ -104,6 +104,120 @@ Required variables:
 Optional:
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - For Google OAuth
 
+**Expo Mobile App** (optional, for mobile authentication):
+- `EXPO_APP_SCHEME` - Mobile app URL scheme (default: `myapp`)
+- `ALLOW_EXPO_DEV_PATTERNS` - Enable Expo Go development patterns (default: `false`)
+
+## Expo Mobile App Integration
+
+This backend supports authentication from Expo mobile apps via the `@better-auth/expo` plugin.
+
+### Setup
+
+**Backend Configuration:**
+
+The backend is pre-configured for Expo support with:
+- `expo()` plugin in `src/lib/auth.ts`
+- Mobile scheme in `trustedOrigins` for CSRF protection
+- Conditional Expo Go patterns for development testing
+
+**Environment Variables:**
+
+```bash
+# .env (Development)
+EXPO_APP_SCHEME=myapp                  # Your app's URL scheme
+ALLOW_EXPO_DEV_PATTERNS=true           # Enable for Expo Go testing
+
+# .env.production (Production)
+EXPO_APP_SCHEME=myapp                  # Your app's URL scheme
+ALLOW_EXPO_DEV_PATTERNS=false          # Disable in production (security)
+```
+
+**What They Do:**
+- `EXPO_APP_SCHEME`: Defines your mobile app's deep link scheme (e.g., `myapp://`)
+- `ALLOW_EXPO_DEV_PATTERNS`: When `true`, allows Expo Go development patterns (`exp://`) for local testing. **Must be `false` in production** to prevent security vulnerabilities.
+
+### Mobile Client Setup
+
+Your Expo app needs:
+
+```bash
+pnpm add better-auth @better-auth/expo expo-secure-store expo-linking expo-web-browser
+```
+
+**app.json configuration:**
+```json
+{
+  "expo": {
+    "scheme": "myapp"
+  }
+}
+```
+
+**Client initialization:**
+```typescript
+import { createAuthClient } from 'better-auth/client';
+import { expoClient } from '@better-auth/expo/client';
+import * as SecureStore from 'expo-secure-store';
+
+const authClient = createAuthClient({
+  baseURL: 'https://your-backend-url.com',
+  plugins: [
+    expoClient({
+      scheme: 'myapp',
+      storage: SecureStore,
+    })
+  ]
+});
+```
+
+### How It Works
+
+**Web vs Mobile Authentication:**
+- **Web**: Session stored in HTTP cookies, OAuth callbacks to `https://yoursite.com/auth/callback/google`
+- **Mobile**: Session stored in expo-secure-store, OAuth callbacks to `myapp://auth/callback/google` (deep links)
+
+**OAuth Flow (Mobile):**
+```
+1. User taps "Sign in with Google"
+2. App opens browser via WebBrowser.openAuthSessionAsync()
+3. User authenticates with Google
+4. Google redirects to: myapp://auth/callback/google?code=...
+5. Expo intercepts deep link and reopens app
+6. expo() plugin exchanges code for session
+7. Session saved to expo-secure-store
+```
+
+**Security:**
+- Mobile app scheme (`myapp://`) added to `trustedOrigins` for CSRF protection
+- Expo Go patterns (`exp://`) only enabled in development via `ALLOW_EXPO_DEV_PATTERNS`
+- Production builds only accept your specific app scheme
+
+### Supported Features
+
+- ✅ Email/password authentication
+- ✅ Google OAuth (with deep linking)
+- ✅ Session persistence (expo-secure-store)
+- ✅ Automatic session restoration on app reload
+- ✅ Token refresh
+- ✅ Logout
+
+### Development Workflow
+
+**Testing with Expo Go:**
+```bash
+# Set in .env
+ALLOW_EXPO_DEV_PATTERNS=true
+```
+→ Allows connections from Expo Go development client
+
+**Production Build:**
+```bash
+# Set in .env.production
+ALLOW_EXPO_DEV_PATTERNS=false
+```
+→ Only accepts your app's specific scheme for security
+
 ## Role-Based Authorization
 
 ### Available Roles

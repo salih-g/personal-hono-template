@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { expo } from '@better-auth/expo';
 import { db } from '@/lib/db';
 import { env } from '@/config/env';
 import type { UserRole } from '@prisma/client';
@@ -21,7 +22,12 @@ export const auth = betterAuth({
           },
         }
       : undefined,
-  trustedOrigins: [env.BETTER_AUTH_URL],
+  plugins: [expo()],
+  trustedOrigins: [
+    env.BETTER_AUTH_URL,
+    `${env.EXPO_APP_SCHEME}://`,
+    ...(env.ALLOW_EXPO_DEV_PATTERNS ? ['exp://*/*', 'exp://192.168.*.*:*/*'] : []),
+  ],
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
   user: {
