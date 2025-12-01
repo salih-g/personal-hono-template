@@ -33,6 +33,8 @@ pnpm db:studio        # Open Prisma Studio GUI
 pnpm db:seed          # Seed database
 ```
 
+**SQL Queries:** See [docs/USER_MANAGEMENT_SQL.md](docs/USER_MANAGEMENT_SQL.md) for comprehensive user management SQL queries (fetch, delete, transactions, backups)
+
 ### Docker
 ```bash
 pnpm docker:up        # Start PostgreSQL with Docker Compose
