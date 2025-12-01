@@ -106,7 +106,6 @@ Optional:
 
 **Expo Mobile App** (optional, for mobile authentication):
 - `EXPO_APP_SCHEME` - Mobile app URL scheme (default: `myapp`)
-- `ALLOW_EXPO_DEV_PATTERNS` - Enable Expo Go development patterns (default: `false`)
 
 ## Expo Mobile App Integration
 
@@ -125,17 +124,17 @@ The backend is pre-configured for Expo support with:
 
 ```bash
 # .env (Development)
+NODE_ENV=development                   # Development mode enables Expo Go patterns
 EXPO_APP_SCHEME=myapp                  # Your app's URL scheme
-ALLOW_EXPO_DEV_PATTERNS=true           # Enable for Expo Go testing
 
 # .env.production (Production)
+NODE_ENV=production                    # Production mode disables Expo Go patterns
 EXPO_APP_SCHEME=myapp                  # Your app's URL scheme
-ALLOW_EXPO_DEV_PATTERNS=false          # Disable in production (security)
 ```
 
 **What They Do:**
+- `NODE_ENV`: Controls environment mode. When `development`, Expo Go patterns (`exp://`) are automatically enabled for local testing. When `production`, only the specific app scheme is trusted for security.
 - `EXPO_APP_SCHEME`: Defines your mobile app's deep link scheme (e.g., `myapp://`)
-- `ALLOW_EXPO_DEV_PATTERNS`: When `true`, allows Expo Go development patterns (`exp://`) for local testing. **Must be `false` in production** to prevent security vulnerabilities.
 
 ### Mobile Client Setup
 
@@ -190,8 +189,8 @@ const authClient = createAuthClient({
 
 **Security:**
 - Mobile app scheme (`myapp://`) added to `trustedOrigins` for CSRF protection
-- Expo Go patterns (`exp://`) only enabled in development via `ALLOW_EXPO_DEV_PATTERNS`
-- Production builds only accept your specific app scheme
+- Expo Go patterns (`exp://`) automatically enabled in development mode (`NODE_ENV=development`)
+- Production builds only accept your specific app scheme for security
 
 ### Supported Features
 
@@ -204,19 +203,31 @@ const authClient = createAuthClient({
 
 ### Development Workflow
 
-**Testing with Expo Go:**
-```bash
-# Set in .env
-ALLOW_EXPO_DEV_PATTERNS=true
-```
-→ Allows connections from Expo Go development client
+**Development Mode (Expo Go):**
+- Automatically trusts Expo Go patterns when `NODE_ENV=development`
+- Supported IP ranges: `10.0.0.x`, `192.168.x.x`, `172.x.x.x`, `localhost`
+- Allows connections from Expo Go development client
 
-**Production Build:**
-```bash
-# Set in .env.production
-ALLOW_EXPO_DEV_PATTERNS=false
-```
-→ Only accepts your app's specific scheme for security
+**Production Mode:**
+- Only trusts your specific app scheme (`myapp://`) when `NODE_ENV=production`
+- Enhanced security by blocking Expo Go development patterns
+
+### Important: Expo Origin Header Handling
+
+Due to Expo SDK 54+ using immutable headers and Hono's request handling, the backend includes a middleware that transforms the `expo-origin` header to `origin` header before Better Auth validation. This is required because:
+
+- **Expo sends authentication requests** with `expo-origin` header (e.g., `exp://192.168.68.52:8081`)
+- **Better Auth validates** the `origin` header for CSRF protection
+- **The expo() plugin's automatic transformation** doesn't work with Hono's immutable headers (would cause "TypeError: Can't modify immutable headers")
+
+**Solution Implemented:**
+- Set `disableOriginOverride: true` in `expo()` plugin configuration (src/lib/auth.ts)
+- Added middleware in `src/app.ts` (before auth routes) that copies `expo-origin` to `origin` header
+- This is the official solution for Hono + Expo SDK 54+ (not a workaround)
+
+**References:**
+- [Better Auth Issue #5568](https://github.com/better-auth/better-auth/issues/5568)
+- [Better Auth Issue #1058](https://github.com/better-auth/better-auth/issues/1058)
 
 ## Role-Based Authorization
 

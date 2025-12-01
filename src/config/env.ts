@@ -12,7 +12,6 @@ const envSchema = z.object({
   FROM_EMAIL: z.string().email(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   EXPO_APP_SCHEME: z.string().default('myapp'),
-  ALLOW_EXPO_DEV_PATTERNS: z.coerce.boolean().default(false),
 });
 
 export type Env = z.infer<typeof envSchema>;

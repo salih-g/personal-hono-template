@@ -22,11 +22,25 @@ export const auth = betterAuth({
           },
         }
       : undefined,
-  plugins: [expo()],
+  plugins: [
+    expo({
+      disableOriginOverride: true, // Critical for Expo SDK 54+ and Hono
+    }),
+  ],
   trustedOrigins: [
     env.BETTER_AUTH_URL,
     `${env.EXPO_APP_SCHEME}://`,
-    ...(env.ALLOW_EXPO_DEV_PATTERNS ? ['exp://*/*', 'exp://192.168.*.*:*/*'] : []),
+
+    // Development mode: Expo Go patterns (official 2025 recommendation)
+    ...(env.NODE_ENV === 'development'
+      ? [
+          'exp://*/*',
+          'exp://10.0.0.*:*/*',
+          'exp://192.168.*.*:*/*',
+          'exp://172.*.*.*:*/*',
+          'exp://localhost:*/*',
+        ]
+      : []),
   ],
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,

@@ -19,6 +19,18 @@ const app = new Hono<{ Variables: AppVariables }>();
 app.use('*', requestId());
 app.use('*', loggerMiddleware());
 app.use('*', cors());
+
+// Expo Origin Header Transform (required for Expo SDK 54+ with Hono)
+// Better Auth validates 'origin' header, but Expo sends 'expo-origin'
+// The expo() plugin can't transform headers due to Hono's immutable headers
+app.use('/api/auth/*', async (c, next) => {
+  const expoOrigin = c.req.header('expo-origin');
+  if (expoOrigin) {
+    c.req.raw.headers.set('origin', expoOrigin);
+  }
+  await next();
+});
+
 app.use('*', rateLimit(globalRateLimiter));
 
 app.use('*', async (c, next) => {
